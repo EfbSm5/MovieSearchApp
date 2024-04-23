@@ -28,10 +28,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.195" />
+
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_width="408dp"
+        android:layout_height="569dp"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="165dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

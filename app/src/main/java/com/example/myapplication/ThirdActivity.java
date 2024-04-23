@@ -12,6 +12,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -37,23 +39,15 @@ public class ThirdActivity extends AppCompatActivity {
         textView.setText(title);
         TextView textView1 = (TextView) findViewById(R.id.textView1);
         textView1.setText(year);
-        ImageView imageView = findViewById(R.id.imageView);
+        ImageView imageView1 = findViewById(R.id.imageView);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
 
                 String imageUrl = poster;
                 try {
-                    URL url = new URL(imageUrl);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-
-                    InputStream inputStream = connection.getInputStream();
-                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-                    imageView.setImageBitmap(bitmap);
-                } catch (IOException e) {
+                    Picasso.get().load(imageUrl).into(imageView1);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
