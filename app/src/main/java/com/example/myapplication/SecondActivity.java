@@ -3,15 +3,13 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -29,10 +27,16 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class SecondActivity extends AppCompatActivity {
-    ArrayList<String> Title = new ArrayList<>();
-    ArrayList<String> Poster = new ArrayList<>();
-    ArrayList<String> Year = new ArrayList<>();
-    String Response = "no data";
+    private ArrayList<String> Title = new ArrayList<>();
+    private ArrayList<String> Poster = new ArrayList<>();
+    private ArrayList<String> Year = new ArrayList<>();
+    private String MovieName = "no data";
+    private ArrayList<String> historyInput = new ArrayList<>();
+    private int currentPage = 0;
+    private String[] tempOutput = new String[10];
+    private String[] title;
+    private boolean sign = false;
+    ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +49,13 @@ public class SecondActivity extends AppCompatActivity {
             return insets;
         });
         ListView list_view = (ListView) findViewById(R.id.list_view);
-        TextView textView = (TextView) findViewById(R.id.textView2);
         sendRequestWithHttpURLConnection();
-        String[] title = Title.toArray(new String[Title.size()]);
+        title = Title.toArray(new String[Title.size()]);
         String[] year = Year.toArray(new String[Year.size()]);
         String[] poster = Poster.toArray(new String[Poster.size()]);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                this, android.R.layout.simple_list_item_1, title);
+        loadMoreData();
+        adapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_list_item_1, tempOutput);
         list_view.setAdapter(adapter);
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -61,8 +65,47 @@ public class SecondActivity extends AppCompatActivity {
                 intent.putExtra("movie year", year[position]);
                 intent.putExtra("movie poster", poster[position]);
                 startActivity(intent);
+                historyInput.add(title[position]);
             }
         });
+        list_view.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                // 检测是否滚动到列表底部
+                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+                        && list_view.getLastVisiblePosition() == adapter.getCount() - 1) {
+                    // 滚动到底部，加载更多数据
+                    if (sign) {
+                        Toast.makeText(SecondActivity.this, "到底啦", Toast.LENGTH_SHORT);
+                    } else {
+                        loadMoreData();
+                    }
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            }
+        });
+
+    }
+
+    //假如45个记录，这时max为4，此时currentPage最高可以到3,最高拉到了40个数据。title.length为45，currentPage*10为40，减去是5
+    private void loadMoreData() {
+        int i = 0;
+        ArrayList<String> tempOutput1 = new ArrayList<>();
+        while (i < 10) {
+            if (title[currentPage * 10 + i].isEmpty()) {
+                sign = true;
+                break;
+            } else {
+                tempOutput1.add(title[currentPage * 10 + i]);
+            }
+            i++;
+        }
+        tempOutput = tempOutput1.toArray(new String[tempOutput1.size()]);
+        currentPage++;
+        adapter.notifyDataSetChanged();
     }
 
 
@@ -91,9 +134,11 @@ public class SecondActivity extends AppCompatActivity {
                     StringBuilder response = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
+
                         response.append(line);
+
                     }
-                    Response = response.toString();
+                    MovieName = response.toString();
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -114,7 +159,7 @@ public class SecondActivity extends AppCompatActivity {
         thread.start();
         try {
             thread.join();
-            JSONObject jsonObject = new JSONObject(Response);
+            JSONObject jsonObject = new JSONObject(MovieName);
             JSONArray searchArray = jsonObject.getJSONArray("Search");
             for (int i = 0; i < searchArray.length(); i++) {
                 JSONObject movieObject = searchArray.getJSONObject(i);
