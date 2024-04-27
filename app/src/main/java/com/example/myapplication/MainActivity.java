@@ -24,13 +24,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Button button = (Button) findViewById(R.id.button);
         EditText editText = (EditText) findViewById(R.id.editText);
-        ArrayList<String> arrayList = new ArrayList<String>();
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (v.getId() == R.id.button) {
                     String inputText = editText.getText().toString();
-                    arrayList.add(inputText);
                     if (inputText.isEmpty()) {
                         Toast.makeText(MainActivity.this, "please input title", Toast.LENGTH_SHORT).show();
                     } else {
