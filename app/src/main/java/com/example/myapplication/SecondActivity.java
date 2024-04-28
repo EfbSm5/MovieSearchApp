@@ -2,13 +2,11 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,11 +21,10 @@ import com.example.myapplication.db.Movie;
 import java.util.ArrayList;
 
 public class SecondActivity extends AppCompatActivity {
-    String receivedata = getIntent().getStringExtra("movie name");
+
     private ArrayList<String> historyInput = new ArrayList<>();
     private int currentPage = 1;
     private ArrayAdapter<String> adapter;
-    public boolean netWorkFinishedFlag = false;
     public Movie movie[];
     private String[] movielist = new String[10];
 
@@ -41,20 +38,32 @@ public class SecondActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        String receivedata = getIntent().getStringExtra("movie name");
         MovieNetworkManager movieNetworkManager = new MovieNetworkManager();
-        String JSONdata = movieNetworkManager.sendRequestWithOkhttp(receivedata, currentPage);
         ListView list_view = (ListView) findViewById(R.id.list_view);
-        parseJSON parseJSON = new parseJSON();
-        while (!JSONdata.isEmpty()) {
-            parseJSON.parseJSONWithGSON(JSONdata);
-        }
-        movie = parseJSON.movieList.toArray(new Movie[0]);
-        list_view.setAdapter(adapter);
-        for (int i = 0; i < 10; i++) {
-            movielist[i] = movie[i].getName();
-        }
-        adapter = new ArrayAdapter<String>(
-                SecondActivity.this, android.R.layout.simple_list_item_1, movielist);
+        parseJSON parseJSON1 = new parseJSON();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    movieNetworkManager.sendRequestWithOkhttp(receivedata, currentPage);
+                    parseJSON1.parseJSONWithGSON(movieNetworkManager.responseData);
+                    movie = parseJSON1.movieList.toArray(new Movie[0]);
+                    for (int i = 0; i < 10; i++) {
+                        movielist[i] = movie[i].getName();
+                    }
+                    adapter = new ArrayAdapter<String>(SecondActivity.this, android.R.layout.simple_list_item_1, movielist);
+                    list_view.setAdapter(adapter);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        thread.start();
+
+
+
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -66,11 +75,9 @@ public class SecondActivity extends AppCompatActivity {
         list_view.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
-                        && list_view.getLastVisiblePosition() == adapter.getCount() - 1) {
+                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && list_view.getLastVisiblePosition() == adapter.getCount() - 1) {
                     currentPage++;
-                    adapter = new ArrayAdapter<String>(
-                            SecondActivity.this, android.R.layout.simple_list_item_1, movielist);
+                    adapter = new ArrayAdapter<String>(SecondActivity.this, android.R.layout.simple_list_item_1, movielist);
                     adapter.notifyDataSetChanged();
                 }
             }
