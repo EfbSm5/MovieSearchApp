@@ -7,6 +7,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +28,10 @@ public class SecondActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     public Movie movie[];
     private String[] movielist = new String[10];
+    ListView list_view;
+    ProgressBar progressBar;
+    parseJSON parse;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,36 +44,16 @@ public class SecondActivity extends AppCompatActivity {
             return insets;
         });
         String receivedata = getIntent().getStringExtra("movie name");
-        MovieNetworkManager movieNetworkManager = new MovieNetworkManager();
-        ListView list_view = (ListView) findViewById(R.id.list_view);
-        parseJSON parseJSON1 = new parseJSON();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    movieNetworkManager.sendRequestWithOkhttp(receivedata, currentPage);
-                    parseJSON1.parseJSONWithGSON(movieNetworkManager.responseData);
-                    movie = parseJSON1.movieList.toArray(new Movie[0]);
-                    for (int i = 0; i < 10; i++) {
-                        movielist[i] = movie[i].getName();
-                    }
-                    adapter = new ArrayAdapter<String>(SecondActivity.this, android.R.layout.simple_list_item_1, movielist);
-                    list_view.setAdapter(adapter);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-        });
-        thread.start();
-
-
-
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+        list_view = (ListView) findViewById(R.id.list_view);
+        methodLoadListView(receivedata, currentPage);
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(SecondActivity.this, ThirdActivity.class);
                 intent.putExtra("movie number", position);
+                intent.putExtra("movie need",parse);
                 startActivity(intent);
             }
         });
@@ -77,8 +62,7 @@ public class SecondActivity extends AppCompatActivity {
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && list_view.getLastVisiblePosition() == adapter.getCount() - 1) {
                     currentPage++;
-                    adapter = new ArrayAdapter<String>(SecondActivity.this, android.R.layout.simple_list_item_1, movielist);
-                    adapter.notifyDataSetChanged();
+                    methodLoadListView(receivedata, currentPage);
                 }
             }
 
@@ -87,6 +71,36 @@ public class SecondActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void methodLoadListView(String areceiveData, int acurrentPage) {
+        MovieNetworkManager movieNetworkManager = new MovieNetworkManager();
+        parse = new parseJSON();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    movieNetworkManager.sendRequestWithHttpUrl(areceiveData, acurrentPage);
+                    parse.parseJSONWithJSON(movieNetworkManager.responseData);
+                    String[] movielist = new String[parse.dataLength];
+                    for (int i = 0; i < parse.dataLength; i++) {
+                        movielist[i] = parse.movie[i].getName();
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter = new ArrayAdapter<String>(SecondActivity.this, android.R.layout.simple_list_item_1, movielist);
+                            list_view.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
     }
 
 }

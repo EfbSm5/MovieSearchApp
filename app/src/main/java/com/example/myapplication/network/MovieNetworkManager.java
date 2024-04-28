@@ -1,5 +1,9 @@
 package com.example.myapplication.network;
 
+import android.widget.Toast;
+
+import com.example.myapplication.SecondActivity;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,14 +21,51 @@ public class MovieNetworkManager {
 
     public void sendRequestWithOkhttp(String receiveData, int currentPage) {
 
+        try {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder().url("https://www.omdbapi.com/?apikey=7852f5f&s=" + receiveData + "&page=" + currentPage).build();
+            Response response = client.newCall(request).execute();
+            responseData = response.body().string();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendRequestWithHttpUrl(String receiveData, int currentPage) {
+        HttpURLConnection connection = null;
+        BufferedReader reader = null;
+        try {
+            URL url = new URL("https://www.omdbapi.com/?apikey=7852f5f&s=" + receiveData + "&page=" + currentPage);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(8000);
+            connection.setReadTimeout(8000);
+            InputStream in = connection.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(in));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            responseData = response.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
                 try {
-                    OkHttpClient client = new OkHttpClient();
-                    Request request = new Request.Builder().url("https://www.omdbapi.com/?apikey=7852f5f&s=" + receiveData + "&page=" + currentPage).build();
-                    Response response = client.newCall(request).execute();
-                    responseData = response.body().string();
-                } catch (Exception e) {
+                    reader.close();
+                } catch (IOException e) {
                     e.printStackTrace();
-                }    }
+                }
+            }
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+
+    }
 
 }
+
+
 

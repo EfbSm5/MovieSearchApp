@@ -1,6 +1,7 @@
 package com.example.myapplication.db;
+import java.io.Serializable;
 
-public class Movie {
+public class Movie implements Serializable{
     public String title;
     public String year;
     public String poster;

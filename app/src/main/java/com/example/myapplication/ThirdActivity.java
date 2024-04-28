@@ -27,6 +27,7 @@ public class ThirdActivity extends AppCompatActivity {
             return insets;
         });
         int titlenumber = getIntent().getIntExtra("movie number", 0);
+        parseJSON parseJSON=(parseJSON)getIntent().getSerializableExtra("movie need");
         TextView textView = (TextView) findViewById(R.id.textView);
         textView.setText((parseJSON.movie[titlenumber].getName()));
         TextView textView1 = (TextView) findViewById(R.id.textView1);
