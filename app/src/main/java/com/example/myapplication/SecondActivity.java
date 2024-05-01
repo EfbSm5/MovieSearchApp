@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 
 public class SecondActivity extends AppCompatActivity {
 
-    private ArrayList<String> historyInput = new ArrayList<>();
     private int currentPage = 1;
     private ArrayAdapter<String> adapter;
     public Movie movie[];
@@ -53,7 +53,7 @@ public class SecondActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(SecondActivity.this, ThirdActivity.class);
                 intent.putExtra("movie number", position);
-                intent.putExtra("movie need",parse);
+                intent.putExtra("movie need", parse);
                 startActivity(intent);
             }
         });
@@ -81,7 +81,18 @@ public class SecondActivity extends AppCompatActivity {
             public void run() {
                 try {
                     movieNetworkManager.sendRequestWithHttpUrl(areceiveData, acurrentPage);
-                    parse.parseJSONWithJSON(movieNetworkManager.responseData);
+                    if (!parse.parseJSONWithJSON(movieNetworkManager.responseData)) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(SecondActivity.this, "没有更多了或者太多了", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        finish();
+                        return;
+                    }
+
+
                     String[] movielist = new String[parse.dataLength];
                     for (int i = 0; i < parse.dataLength; i++) {
                         movielist[i] = parse.movie[i].getName();

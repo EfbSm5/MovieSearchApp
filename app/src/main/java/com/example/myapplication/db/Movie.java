@@ -6,6 +6,12 @@ public class Movie implements Serializable{
     public String year;
     public String poster;
 
+    public Movie(String title, String year, String poster) {
+        this.title=title;
+        this.year=year;
+        this.poster=poster;
+    }
+
     public String getName() {
         return title;
     }
