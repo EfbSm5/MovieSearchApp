@@ -16,7 +16,6 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-ArrayList<String> inputHistory=new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +31,6 @@ ArrayList<String> inputHistory=new ArrayList<>();
                     if (inputText.isEmpty()) {
                         Toast.makeText(MainActivity.this, "please input title", Toast.LENGTH_SHORT).show();
                     } else {
-                        inputHistory.add(inputText);
                         Intent intent = new Intent(MainActivity.this, SecondActivity.class);
                         intent.putExtra("movie name", inputText);
                         startActivity(intent);

@@ -26,14 +26,13 @@ public class ThirdActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        int titlenumber = getIntent().getIntExtra("movie number", 0);
-        parseJSON parseJSON=(parseJSON)getIntent().getSerializableExtra("movie need");
+        Movie movie = (Movie) getIntent().getSerializableExtra("movie need");
         TextView textView = (TextView) findViewById(R.id.textView);
-        textView.setText((parseJSON.movie[titlenumber].getName()));
+        textView.setText((movie.getName()));
         TextView textView1 = (TextView) findViewById(R.id.textView1);
-        textView1.setText((parseJSON.movie[titlenumber].getYear()));
+        textView1.setText((movie.getYear()));
         ImageView imageView1 = findViewById(R.id.imageView);
-        String imageUrl = parseJSON.movie[titlenumber].getPoster();
+        String imageUrl = movie.getPoster();
         Picasso.get().load(imageUrl).into(imageView1);
     }
 }

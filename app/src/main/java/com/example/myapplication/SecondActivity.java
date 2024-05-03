@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -16,22 +17,22 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.myapplication.db.Movie;
 import com.example.myapplication.network.MovieNetworkManager;
 import com.example.myapplication.network.parseJSON;
-import com.example.myapplication.db.Movie;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class SecondActivity extends AppCompatActivity {
 
     private int currentPage = 1;
     private ArrayAdapter<String> adapter;
-    public Movie movie[];
-    private String[] movielist = new String[10];
-    ListView list_view;
-    ProgressBar progressBar;
-    parseJSON parse;
-
+    private ListView list_view;
+    private ProgressBar progressBar;
+    private parseJSON parse;
+    public Set<Movie> movieHistory = new LinkedHashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,16 +45,28 @@ public class SecondActivity extends AppCompatActivity {
             return insets;
         });
         String receivedata = getIntent().getStringExtra("movie name");
+        Button button=(Button)findViewById(R.id.button_);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
         list_view = (ListView) findViewById(R.id.list_view);
         methodLoadListView(receivedata, currentPage);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.getId() == R.id.button_) {
+                    Movie[] movieHistory1=movieHistory.toArray(new  Movie[0]);
+                        Intent intent = new Intent(SecondActivity.this, FourthActivity.class);
+                        intent.putExtra("movie list", movieHistory1);
+                        startActivity(intent);
+                }
+            }
+        });
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(SecondActivity.this, ThirdActivity.class);
-                intent.putExtra("movie number", position);
-                intent.putExtra("movie need", parse);
+                intent.putExtra("movie need", parse.movie[position]);
+                movieHistory.add(parse.movie[position]);
                 startActivity(intent);
             }
         });
