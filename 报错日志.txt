@@ -1,9 +1,9 @@
 2024-04-27 14:48:53.733 18599-18599 InputEventReceiver      com.example.myapplication            E  Exception dispatching input event.
 2024-04-27 14:48:53.733 18599-18599 MessageQueue-JNI        com.example.myapplication            E  Exception in MessageQueue callback: handleReceiveCallback
 2024-04-27 14:48:53.736 18599-18599 MessageQueue-JNI        com.example.myapplication            E  java.lang.ArrayIndexOutOfBoundsException: length=10; index=10
-                                                                                                    	at com.example.myapplication.SecondActivity.loadMoreData(SecondActivity.java:110)
-                                                                                                    	at com.example.myapplication.SecondActivity.access$600(SecondActivity.java:31)
-                                                                                                    	at com.example.myapplication.SecondActivity$2.onScrollStateChanged(SecondActivity.java:85)
+                                                                                                    	at com.example.myapplication.ShowActivity.loadMoreData(SecondActivity.java:110)
+                                                                                                    	at com.example.myapplication.ShowActivity.access$600(SecondActivity.java:31)
+                                                                                                    	at com.example.myapplication.ShowActivity$2.onScrollStateChanged(SecondActivity.java:85)
                                                                                                     	at android.widget.AbsListView.reportScrollStateChange(AbsListView.java:4862)
                                                                                                     	at android.widget.AbsListView.onTouchUp(AbsListView.java:4323)
                                                                                                     	at android.widget.AbsListView.onTouchEvent(AbsListView.java:3997)
@@ -57,9 +57,9 @@
 2024-04-27 14:48:53.741 18599-18599 AndroidRuntime          com.example.myapplication            E  FATAL EXCEPTION: main
                                                                                                     Process: com.example.myapplication, PID: 18599
                                                                                                     java.lang.ArrayIndexOutOfBoundsException: length=10; index=10
-                                                                                                    	at com.example.myapplication.SecondActivity.loadMoreData(SecondActivity.java:110)
-                                                                                                    	at com.example.myapplication.SecondActivity.access$600(SecondActivity.java:31)
-                                                                                                    	at com.example.myapplication.SecondActivity$2.onScrollStateChanged(SecondActivity.java:85)
+                                                                                                    	at com.example.myapplication.ShowActivity.loadMoreData(SecondActivity.java:110)
+                                                                                                    	at com.example.myapplication.ShowActivity.access$600(SecondActivity.java:31)
+                                                                                                    	at com.example.myapplication.ShowActivity$2.onScrollStateChanged(SecondActivity.java:85)
                                                                                                     	at android.widget.AbsListView.reportScrollStateChange(AbsListView.java:4862)
                                                                                                     	at android.widget.AbsListView.onTouchUp(AbsListView.java:4323)
                                                                                                     	at android.widget.AbsListView.onTouchEvent(AbsListView.java:3997)

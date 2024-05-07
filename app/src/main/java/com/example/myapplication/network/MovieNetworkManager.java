@@ -1,9 +1,5 @@
 package com.example.myapplication.network;
 
-import android.widget.Toast;
-
-import com.example.myapplication.SecondActivity;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

@@ -13,8 +13,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
                     if (inputText.isEmpty()) {
                         Toast.makeText(MainActivity.this, "please input title", Toast.LENGTH_SHORT).show();
                     } else {
-                        Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                        Intent intent = new Intent(MainActivity.this, ShowActivity.class);
                         intent.putExtra("movie name", inputText);
                         startActivity(intent);
                     }
