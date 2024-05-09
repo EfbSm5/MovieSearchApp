@@ -1,17 +1,12 @@
 package com.example.myapplication;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,11 +24,7 @@ import com.example.myapplication.db.Movie;
 import com.example.myapplication.network.MovieNetworkManager;
 import com.example.myapplication.network.parseJsonTools;
 import com.scwang.smart.refresh.layout.SmartRefreshLayout;
-import com.scwang.smart.refresh.layout.api.RefreshLayout;
-import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,10 +34,10 @@ public class ShowActivity extends AppCompatActivity {
 
     private int currentPage = 1;
     private ProgressBar progressBar;
-    private parseJsonTools parse;
+    private parseJsonTools parse = new parseJsonTools();
     public Set<Movie> tempMovieHistory = new LinkedHashSet<>();
     RecyclerView recyclerView;
-    SmartRefreshLayout smartRefreshLayout;
+    int scrollPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +54,6 @@ public class ShowActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        smartRefreshLayout=(SmartRefreshLayout)findViewById(R.id.smartRefresh);
         methodLoadListView(receivedata, currentPage);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,21 +64,25 @@ public class ShowActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        smartRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onRefresh(RefreshLayout refreshlayout) {
-                refreshlayout.finishRefresh(2000);
+            public void onScrolled(@NonNull RecyclerView _recyclerView, int dx, int dy) {
+                super.onScrolled(_recyclerView, dx, dy);
 
-
-
+                // 在这里进行滚动到底部的判断
+                if (!_recyclerView.canScrollVertically(1)) {
+                    // 记录当前滚动位置
+                    scrollPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                    currentPage++;
+                    methodLoadListView(receivedata, currentPage);
+                }
             }
         });
     }
 
+
     public void methodLoadListView(String _receiveData, int _currentPage) {
         MovieNetworkManager movieNetworkManager = new MovieNetworkManager();
-        parse = new parseJsonTools();
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -104,6 +98,7 @@ public class ShowActivity extends AppCompatActivity {
                         return;
                     }
                     runOnUiThread(new Runnable() {
+                        @SuppressLint("NotifyDataSetChanged")
                         @Override
                         public void run() {
                             LinearLayoutManager layoutManager = new LinearLayoutManager(ShowActivity.this);
@@ -115,6 +110,7 @@ public class ShowActivity extends AppCompatActivity {
                             recyclerViewAdapter adapter = new recyclerViewAdapter();
                             recyclerView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
+                            recyclerView.scrollToPosition(scrollPosition);
                             progressBar.setVisibility(View.GONE);
                         }
                     });
@@ -140,6 +136,7 @@ public class ShowActivity extends AppCompatActivity {
                 textView = itemView.findViewById(R.id.textViewTitle);
             }
         }
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
@@ -157,10 +154,12 @@ public class ShowActivity extends AppCompatActivity {
             });
             return holder;
         }
+
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.textView.setText(parse.movieArray[position].getName());
         }
+
         @Override
         public int getItemCount() {
             return parse.movies.size();
