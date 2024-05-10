@@ -40,6 +40,7 @@ public class ShowActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     int scrollPosition;
     MutableLiveData<Movie[]> mLiveData = new MutableLiveData<>();
+    recyclerViewAdapter adapter = new recyclerViewAdapter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,10 @@ public class ShowActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(ShowActivity.this);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
         methodLoadListView(receivedata, currentPage);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,15 +81,15 @@ public class ShowActivity extends AppCompatActivity {
                     currentPage++;
                     methodLoadListView(receivedata, currentPage);
                     progressBar.setVisibility(View.VISIBLE);
-                    scrollPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
                 }
             }
         });
 
         mLiveData.observe(this, new Observer<Movie[]>() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChanged(Movie[] strings) {
-                recyclerView.scrollToPosition(scrollPosition);
+                adapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);
             }
         });
@@ -108,17 +113,11 @@ public class ShowActivity extends AppCompatActivity {
                         });
                         return;
                     }
+                    mLiveData.postValue(parse.movieArray);
                     runOnUiThread(new Runnable() {
-                        @SuppressLint("NotifyDataSetChanged")
                         @Override
                         public void run() {
-                            LinearLayoutManager layoutManager = new LinearLayoutManager(ShowActivity.this);
-                            layoutManager.setOrientation(RecyclerView.VERTICAL);
-                            recyclerView.setLayoutManager(layoutManager);
-                            recyclerViewAdapter adapter = new recyclerViewAdapter();
-                            recyclerView.setAdapter(adapter);
                             progressBar.setVisibility(View.GONE);
-                            mLiveData.postValue(parse.movieArray);
                         }
                     });
                 } catch (Exception e) {
@@ -128,7 +127,6 @@ public class ShowActivity extends AppCompatActivity {
         });
         thread.start();
     }
-
     public class recyclerViewAdapter extends RecyclerView.Adapter<recyclerViewAdapter.ViewHolder> {
         public recyclerViewAdapter() {
         }
@@ -143,7 +141,6 @@ public class ShowActivity extends AppCompatActivity {
                 textView = itemView.findViewById(R.id.textViewTitle);
             }
         }
-
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
