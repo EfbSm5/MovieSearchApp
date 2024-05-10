@@ -17,13 +17,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.db.Movie;
 import com.example.myapplication.network.MovieNetworkManager;
 import com.example.myapplication.network.parseJsonTools;
-import com.scwang.smart.refresh.layout.SmartRefreshLayout;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,10 +35,11 @@ public class ShowActivity extends AppCompatActivity {
 
     private int currentPage = 1;
     private ProgressBar progressBar;
-    private parseJsonTools parse = new parseJsonTools();
+    private final parseJsonTools parse = new parseJsonTools();
     public Set<Movie> tempMovieHistory = new LinkedHashSet<>();
-    RecyclerView recyclerView;
+    private RecyclerView recyclerView;
     int scrollPosition;
+    MutableLiveData<Movie[]> mLiveData = new MutableLiveData<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,11 +73,19 @@ public class ShowActivity extends AppCompatActivity {
 
                 // 在这里进行滚动到底部的判断
                 if (!_recyclerView.canScrollVertically(1)) {
-                    // 记录当前滚动位置
-                    scrollPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
                     currentPage++;
                     methodLoadListView(receivedata, currentPage);
+                    progressBar.setVisibility(View.VISIBLE);
+                    scrollPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
                 }
+            }
+        });
+
+        mLiveData.observe(this, new Observer<Movie[]>() {
+            @Override
+            public void onChanged(Movie[] strings) {
+                recyclerView.scrollToPosition(scrollPosition);
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
@@ -93,6 +103,7 @@ public class ShowActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 Toast.makeText(ShowActivity.this, "没有更多了或者太多了", Toast.LENGTH_SHORT).show();
+                                progressBar.setVisibility(View.GONE);
                             }
                         });
                         return;
@@ -104,14 +115,10 @@ public class ShowActivity extends AppCompatActivity {
                             LinearLayoutManager layoutManager = new LinearLayoutManager(ShowActivity.this);
                             layoutManager.setOrientation(RecyclerView.VERTICAL);
                             recyclerView.setLayoutManager(layoutManager);
-                            List<String> namesList = parse.movies.stream()
-                                    .map(Movie::getName)
-                                    .collect(Collectors.toList());
                             recyclerViewAdapter adapter = new recyclerViewAdapter();
                             recyclerView.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();
-                            recyclerView.scrollToPosition(scrollPosition);
                             progressBar.setVisibility(View.GONE);
+                            mLiveData.postValue(parse.movieArray);
                         }
                     });
                 } catch (Exception e) {
@@ -137,6 +144,7 @@ public class ShowActivity extends AppCompatActivity {
             }
         }
 
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())

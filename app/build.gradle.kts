@@ -46,6 +46,6 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.0.0")                 //必须 1.0.0 以上
     implementation("io.github.scwang90:refresh-layout-kernel:2.1.0")     //核心必须依赖
     implementation("io.github.scwang90:refresh-header-classics:2.1.0")
-
+    implementation ("androidx.lifecycle:lifecycle-livedata:2.0.0")
 
 }
