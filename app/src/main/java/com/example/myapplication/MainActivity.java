@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (v.getId() == R.id.button) {
                     String inputText = editText.getText().toString();
                     if (inputText.isEmpty()) {
                         Toast.makeText(MainActivity.this, "please input title", Toast.LENGTH_SHORT).show();
@@ -33,8 +32,6 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra("movie name", inputText);
                         startActivity(intent);
                     }
-
-                }
             }
         });
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

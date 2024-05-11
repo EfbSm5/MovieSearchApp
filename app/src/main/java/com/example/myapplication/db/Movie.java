@@ -2,9 +2,9 @@ package com.example.myapplication.db;
 import java.io.Serializable;
 
 public class Movie implements Serializable{
-    public String title;
-    public String year;
-    public String poster;
+    private final String title;
+    private final String year;
+    private final String poster;
 
     public Movie(String title, String year, String poster) {
         this.title=title;
@@ -24,15 +24,4 @@ public class Movie implements Serializable{
         return year;
     }
 
-    public void setName(String name) {
-        this.title = name;
-    }
-
-    public void setPoster(String poster) {
-        this.poster = poster;
-    }
-
-    public void setYear(String year) {
-        this.year = year;
-    }
 }
