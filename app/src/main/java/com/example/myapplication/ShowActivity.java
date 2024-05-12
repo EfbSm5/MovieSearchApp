@@ -1,14 +1,15 @@
 package com.example.myapplication;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -29,14 +30,13 @@ import java.util.Set;
 
 
 public class ShowActivity extends AppCompatActivity {
-
+    private static final String TAG = "ShowActivity";
     private int currentPage = 1;
     private ProgressBar progressBar;
-
     MutableLiveData<ArrayList<Movie>> mLiveData = new MutableLiveData<>();
     Set<Movie> tempMovieHistory = new LinkedHashSet<>();
-    recyclerViewAdapter adapter;
-    ArrayList<Movie> movieList = new ArrayList<>();
+    ArrayList<Movie> tempMovieList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,15 +49,23 @@ public class ShowActivity extends AppCompatActivity {
             return insets;
         });
         String receiveData = getIntent().getStringExtra("movie name");
-        mLiveData.setValue(movieList);
+        recyclerViewAdapter adapter = new recyclerViewAdapter();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                tempMovieList = new ArrayList<>(methodLoadData.methodLoadListView(receiveData, currentPage));
+                mLiveData.postValue(tempMovieList);
+            }
+        }).start();
         Button button = (Button) findViewById(R.id.button_);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        recyclerView.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(ShowActivity.this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        movieList.addAll(methodLoadData.methodLoadListView(receiveData, currentPage));
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,30 +82,42 @@ public class ShowActivity extends AppCompatActivity {
                 if (!_recyclerView.canScrollVertically(1)) {
                     currentPage++;
                     progressBar.setVisibility(View.VISIBLE);
-                    movieList.addAll(methodLoadData.methodLoadListView(receiveData, currentPage));
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tempMovieList=new ArrayList<Movie>(methodLoadData.methodLoadListView(receiveData, currentPage));
+                            mLiveData.postValue(tempMovieList);
+                        }
+                    }).start();
                 }
             }
         });
         mLiveData.observe(this, new Observer<ArrayList<Movie>>() {
-            @SuppressLint("NotifyDataSetChanged")
+
             @Override
             public void onChanged(ArrayList<Movie> strings) {
-                if (!movieList.isEmpty()) {
-                    recyclerView.setAdapter(new recyclerViewAdapter(movieList));
+                Log.d(TAG, "This is Log:run: " + tempMovieList.size() + "    " + currentPage + "time" + "   methodOnChanged");
+                if (tempMovieList != null && !tempMovieList.isEmpty()) {
+                    adapter.movieData.addAll(tempMovieList);
                     adapter.notifyDataSetChanged();
-                    progressBar.setVisibility(View.GONE);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "progressView off");
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+
                 }
             }
         });
     }
 
     public class recyclerViewAdapter extends RecyclerView.Adapter<recyclerViewAdapter.ViewHolder> {
-        ArrayList<Movie> movieList = new ArrayList<>();
-        Movie[] movieData;
+        ArrayList<Movie> movieData = new ArrayList<>();
 
-        public recyclerViewAdapter(ArrayList<Movie> _movieData) {
-            movieList.addAll(_movieData);
-            movieData = movieList.toArray(new Movie[0]);
+        public recyclerViewAdapter() {
+
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
@@ -115,16 +135,15 @@ public class ShowActivity extends AppCompatActivity {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_list, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_list, parent, false);
             final ViewHolder holder = new ViewHolder(view);
             holder.textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = holder.getAdapterPosition();
                     Intent intent = new Intent(ShowActivity.this, DetailsActivity.class);
-                    intent.putExtra("movie need", movieData[position]);
-                    tempMovieHistory.add(movieData[position]);
+                    intent.putExtra("movie need", movieData.toArray(new Movie[0])[position]);
+                    tempMovieHistory.add(movieData.toArray(new Movie[0])[position]);
                     startActivity(intent);
                 }
             });
@@ -133,14 +152,17 @@ public class ShowActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.textView.setText(movieData[position].getName());
+            holder.textView.setText(movieData.toArray(new Movie[0])[position].getName());
         }
 
         @Override
         public int getItemCount() {
-            return movieData.length;
-        }
-    }
+            if (movieData == null) {
+                return 0;
+            } else return movieData.size();
 
+        }
+
+    }
 }
 

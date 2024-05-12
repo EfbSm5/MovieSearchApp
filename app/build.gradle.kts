@@ -5,6 +5,9 @@ plugins {
 android {
     namespace = "com.example.myapplication"
     compileSdk = 34
+    dataBinding {
+        enable = true
+    }
 
     defaultConfig {
         applicationId = "com.example.myapplication"

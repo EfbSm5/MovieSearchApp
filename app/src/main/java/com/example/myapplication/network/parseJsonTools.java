@@ -13,7 +13,6 @@ import java.io.Serializable;
 public class parseJsonTools implements Serializable {
 
     public static ArrayList<Movie> parseJSONWithJSON(String jsonData) throws JSONException {
-        ArrayList<Movie> movies = new ArrayList<>();
         ArrayList<Movie> tempmovies = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(jsonData);
