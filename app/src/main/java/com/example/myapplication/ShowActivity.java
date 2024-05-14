@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -33,9 +33,8 @@ public class ShowActivity extends AppCompatActivity {
     private static final String TAG = "ShowActivity";
     private int currentPage = 1;
     private ProgressBar progressBar;
-    MutableLiveData<ArrayList<Movie>> mLiveData = new MutableLiveData<>();
-    Set<Movie> tempMovieHistory = new LinkedHashSet<>();
-    ArrayList<Movie> tempMovieList;
+    private  Set<Movie> tempMovieHistory = new LinkedHashSet<>();
+    private ArrayList<Movie> tempMovieList;
 
 
     @Override
@@ -49,7 +48,8 @@ public class ShowActivity extends AppCompatActivity {
             return insets;
         });
         String receiveData = getIntent().getStringExtra("movie name");
-        recyclerViewAdapter adapter = new recyclerViewAdapter();
+        final MutableLiveData<ArrayList<Movie>> mLiveData = new MutableLiveData<>();
+        final recyclerViewAdapter adapter = new recyclerViewAdapter();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -85,7 +85,7 @@ public class ShowActivity extends AppCompatActivity {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            tempMovieList=new ArrayList<Movie>(methodLoadData.methodLoadListView(receiveData, currentPage));
+                            tempMovieList = new ArrayList<Movie>(methodLoadData.methodLoadListView(receiveData, currentPage));
                             mLiveData.postValue(tempMovieList);
                         }
                     }).start();
@@ -94,16 +94,15 @@ public class ShowActivity extends AppCompatActivity {
         });
         mLiveData.observe(this, new Observer<ArrayList<Movie>>() {
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChanged(ArrayList<Movie> strings) {
-                Log.d(TAG, "This is Log:run: " + tempMovieList.size() + "    " + currentPage + "time" + "   methodOnChanged");
                 if (tempMovieList != null && !tempMovieList.isEmpty()) {
                     adapter.movieData.addAll(tempMovieList);
                     adapter.notifyDataSetChanged();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Log.d(TAG, "progressView off");
                             progressBar.setVisibility(View.GONE);
                         }
                     });
@@ -111,17 +110,21 @@ public class ShowActivity extends AppCompatActivity {
                 }
             }
         });
+        Log.d(TAG, "onCreate: ");
+
     }
 
     public class recyclerViewAdapter extends RecyclerView.Adapter<recyclerViewAdapter.ViewHolder> {
-        ArrayList<Movie> movieData = new ArrayList<>();
+        private ArrayList<Movie> movieData = new ArrayList<>();
 
         public recyclerViewAdapter() {
-
+            if (movieData != null) {
+                movieData.clear();
+            }
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            private TextView textView;
+            private final TextView textView;
             View view;
 
             public ViewHolder(View itemView) {
@@ -140,10 +143,11 @@ public class ShowActivity extends AppCompatActivity {
             holder.textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Movie[] tempMovie = movieData.toArray(new Movie[0]);
                     int position = holder.getAdapterPosition();
                     Intent intent = new Intent(ShowActivity.this, DetailsActivity.class);
-                    intent.putExtra("movie need", movieData.toArray(new Movie[0])[position]);
-                    tempMovieHistory.add(movieData.toArray(new Movie[0])[position]);
+                    intent.putExtra("movie need", tempMovie[position]);
+                    tempMovieHistory.add(tempMovie[position]);
                     startActivity(intent);
                 }
             });

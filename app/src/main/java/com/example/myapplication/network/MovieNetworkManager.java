@@ -11,7 +11,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public  class MovieNetworkManager {
+public class MovieNetworkManager {
     private String responseData;
     public boolean finishFlag = false;
 
@@ -31,7 +31,8 @@ public  class MovieNetworkManager {
         }
     }
 
-    public void sendRequestWithHttpUrl(String receiveData, int currentPage) {
+    public static String sendRequestWithHttpUrl(String receiveData, int currentPage) {
+        String responseData = null;
         HttpURLConnection connection = null;
         BufferedReader reader = null;
         try {
@@ -62,7 +63,7 @@ public  class MovieNetworkManager {
                 connection.disconnect();
             }
         }
-
+        return responseData;
     }
 
 }

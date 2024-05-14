@@ -24,14 +24,14 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    String inputText = editText.getText().toString();
-                    if (inputText.isEmpty()) {
-                        Toast.makeText(MainActivity.this, "please input title", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Intent intent = new Intent(MainActivity.this, ShowActivity.class);
-                        intent.putExtra("movie name", inputText);
-                        startActivity(intent);
-                    }
+                String inputText = editText.getText().toString();
+                if (inputText.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "please input title", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(MainActivity.this, ShowActivity.class);
+                    intent.putExtra("movie name", inputText);
+                    startActivity(intent);
+                }
             }
         });
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

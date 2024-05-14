@@ -15,10 +15,8 @@ public class methodLoadData {
 
     public static ArrayList<Movie> methodLoadListView(String _receiveData, int _currentPage) {
 
-        MovieNetworkManager movieNetworkManager = new MovieNetworkManager();
         try {
-            movieNetworkManager.sendRequestWithHttpUrl(_receiveData, _currentPage);
-            movies.addAll(parseJSONWithJSON(movieNetworkManager.getResponseData()));
+            movies.addAll(parseJSONWithJSON(MovieNetworkManager.sendRequestWithHttpUrl(_receiveData, _currentPage)));
         } catch (Exception e) {
             e.printStackTrace();
         }
