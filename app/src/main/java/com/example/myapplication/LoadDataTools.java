@@ -1,7 +1,7 @@
 package com.example.myapplication;
 
 import static android.content.ContentValues.TAG;
-import static com.example.myapplication.network.parseJsonTools.parseJSONWithJSON;
+import static com.example.myapplication.network.ParseJsonTools.parseJSONWithJSON;
 
 import android.util.Log;
 
@@ -10,10 +10,9 @@ import com.example.myapplication.network.MovieNetworkManager;
 
 import java.util.ArrayList;
 
-public class methodLoadData {
-    static ArrayList<Movie> movies = new ArrayList<>();
-
+public class LoadDataTools {
     public static ArrayList<Movie> methodLoadListView(String _receiveData, int _currentPage) {
+        ArrayList<Movie> movies = new ArrayList<>();
 
         try {
             movies.addAll(parseJSONWithJSON(MovieNetworkManager.sendRequestWithHttpUrl(_receiveData, _currentPage)));

@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.io.Serializable;
 
-public class parseJsonTools implements Serializable {
+public class ParseJsonTools implements Serializable {
 
     public static ArrayList<Movie> parseJSONWithJSON(String jsonData) throws JSONException {
         ArrayList<Movie> tempmovies = new ArrayList<>();

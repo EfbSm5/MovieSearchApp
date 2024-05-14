@@ -33,65 +33,20 @@ public class ShowActivity extends AppCompatActivity {
     private static final String TAG = "ShowActivity";
     private int currentPage = 1;
     private ProgressBar progressBar;
-    private  Set<Movie> tempMovieHistory = new LinkedHashSet<>();
+    private final Set<Movie> tempMovieHistory = new LinkedHashSet<>();
     private ArrayList<Movie> tempMovieList;
+    private Button button;
+    private final recyclerViewAdapter adapter = new recyclerViewAdapter();
+    private final MutableLiveData<ArrayList<Movie>> mLiveData = new MutableLiveData<>();
 
-
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_show);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
         String receiveData = getIntent().getStringExtra("movie name");
-        final MutableLiveData<ArrayList<Movie>> mLiveData = new MutableLiveData<>();
-        final recyclerViewAdapter adapter = new recyclerViewAdapter();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                tempMovieList = new ArrayList<>(methodLoadData.methodLoadListView(receiveData, currentPage));
-                mLiveData.postValue(tempMovieList);
-            }
-        }).start();
-        Button button = (Button) findViewById(R.id.button_);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        super.onCreate(savedInstanceState);
+        setupUI(receiveData);
+        firstLoadData(receiveData);
         progressBar.setVisibility(View.VISIBLE);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        recyclerView.setAdapter(adapter);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(ShowActivity.this);
-        layoutManager.setOrientation(RecyclerView.VERTICAL);
-        recyclerView.setLayoutManager(layoutManager);
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Movie[] movieHistory = tempMovieHistory.toArray(new Movie[0]);
-                Intent intent = new Intent(ShowActivity.this, HistoryActivity.class);
-                intent.putExtra("movie list", movieHistory);
-                startActivity(intent);
-            }
-        });
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView _recyclerView, int dx, int dy) {
-                super.onScrolled(_recyclerView, dx, dy);
-                if (!_recyclerView.canScrollVertically(1)) {
-                    currentPage++;
-                    progressBar.setVisibility(View.VISIBLE);
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tempMovieList = new ArrayList<Movie>(methodLoadData.methodLoadListView(receiveData, currentPage));
-                            mLiveData.postValue(tempMovieList);
-                        }
-                    }).start();
-                }
-            }
-        });
         mLiveData.observe(this, new Observer<ArrayList<Movie>>() {
 
             @SuppressLint("NotifyDataSetChanged")
@@ -111,16 +66,13 @@ public class ShowActivity extends AppCompatActivity {
             }
         });
         Log.d(TAG, "onCreate: ");
-
     }
 
     public class recyclerViewAdapter extends RecyclerView.Adapter<recyclerViewAdapter.ViewHolder> {
         private ArrayList<Movie> movieData = new ArrayList<>();
 
         public recyclerViewAdapter() {
-            if (movieData != null) {
-                movieData.clear();
-            }
+
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
@@ -168,5 +120,54 @@ public class ShowActivity extends AppCompatActivity {
         }
 
     }
+
+    private void setupUI(String receiveData) {
+
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_show);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+        button = findViewById(R.id.button_);
+        progressBar = findViewById(R.id.progressBar);
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
+        recyclerView.setAdapter(adapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(ShowActivity.this);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Movie[] movieHistory = tempMovieHistory.toArray(new Movie[0]);
+                Intent intent = new Intent(ShowActivity.this, HistoryActivity.class);
+                intent.putExtra("movie list", movieHistory);
+                startActivity(intent);
+            }
+        });
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView _recyclerView, int dx, int dy) {
+                super.onScrolled(_recyclerView, dx, dy);
+                if (!_recyclerView.canScrollVertically(1)) {
+                    currentPage++;
+                    progressBar.setVisibility(View.VISIBLE);
+                    new Thread(() -> {
+                        tempMovieList = new ArrayList<>(LoadDataTools.methodLoadListView(receiveData, currentPage));
+                        mLiveData.postValue(tempMovieList);
+                    }).start();
+                }
+            }
+        });
+    }
+    private void firstLoadData(String receiveData) {
+        new Thread(() -> {
+            tempMovieList = new ArrayList<>(LoadDataTools.methodLoadListView(receiveData, currentPage));
+            mLiveData.postValue(tempMovieList);
+        }).start();
+    }
 }
+
+
 
