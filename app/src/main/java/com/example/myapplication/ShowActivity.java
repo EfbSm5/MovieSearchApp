@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -34,8 +35,7 @@ public class ShowActivity extends AppCompatActivity {
     private int currentPage = 1;
     private ProgressBar progressBar;
     private final Set<Movie> tempMovieHistory = new LinkedHashSet<>();
-    private ArrayList<Movie> tempMovieList;
-    private Button button;
+    private ArrayList<Movie> tempMovieList = new ArrayList<>();
     private final recyclerViewAdapter adapter = new recyclerViewAdapter();
     private final MutableLiveData<ArrayList<Movie>> mLiveData = new MutableLiveData<>();
 
@@ -55,12 +55,7 @@ public class ShowActivity extends AppCompatActivity {
                 if (tempMovieList != null && !tempMovieList.isEmpty()) {
                     adapter.movieData.addAll(tempMovieList);
                     adapter.notifyDataSetChanged();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
+                    runOnUiThread(() -> progressBar.setVisibility(View.GONE));
 
                 }
             }
@@ -69,7 +64,7 @@ public class ShowActivity extends AppCompatActivity {
     }
 
     public class recyclerViewAdapter extends RecyclerView.Adapter<recyclerViewAdapter.ViewHolder> {
-        private ArrayList<Movie> movieData = new ArrayList<>();
+        private final ArrayList<Movie> movieData = new ArrayList<>();
 
         public recyclerViewAdapter() {
 
@@ -92,30 +87,25 @@ public class ShowActivity extends AppCompatActivity {
 
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_list, parent, false);
             final ViewHolder holder = new ViewHolder(view);
-            holder.textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Movie[] tempMovie = movieData.toArray(new Movie[0]);
-                    int position = holder.getAdapterPosition();
-                    Intent intent = new Intent(ShowActivity.this, DetailsActivity.class);
-                    intent.putExtra("movie need", tempMovie[position]);
-                    tempMovieHistory.add(tempMovie[position]);
-                    startActivity(intent);
-                }
+            holder.textView.setOnClickListener(v -> {
+                Movie[] tempMovie = movieData.toArray(new Movie[0]);
+                int position = holder.getAdapterPosition();
+                Intent intent = new Intent(ShowActivity.this, DetailsActivity.class);
+                intent.putExtra("movie need", tempMovie[position]);
+                tempMovieHistory.add(tempMovie[position]);
+                startActivity(intent);
             });
             return holder;
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.textView.setText(movieData.toArray(new Movie[0])[position].getName());
+            holder.textView.setText(movieData.toArray(new Movie[0])[position].getTitle());
         }
 
         @Override
         public int getItemCount() {
-            if (movieData == null) {
-                return 0;
-            } else return movieData.size();
+            return movieData.size();
 
         }
 
@@ -130,21 +120,18 @@ public class ShowActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        button = findViewById(R.id.button_);
+        Button button = findViewById(R.id.button_);
         progressBar = findViewById(R.id.progressBar);
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(ShowActivity.this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Movie[] movieHistory = tempMovieHistory.toArray(new Movie[0]);
-                Intent intent = new Intent(ShowActivity.this, HistoryActivity.class);
-                intent.putExtra("movie list", movieHistory);
-                startActivity(intent);
-            }
+        button.setOnClickListener(v -> {
+            Movie[] movieHistory = tempMovieHistory.toArray(new Movie[0]);
+            Intent intent = new Intent(ShowActivity.this, HistoryActivity.class);
+            intent.putExtra("movie list", movieHistory);
+            startActivity(intent);
         });
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -161,10 +148,14 @@ public class ShowActivity extends AppCompatActivity {
             }
         });
     }
+
     private void firstLoadData(String receiveData) {
         new Thread(() -> {
             tempMovieList = new ArrayList<>(LoadDataTools.methodLoadListView(receiveData, currentPage));
             mLiveData.postValue(tempMovieList);
+            if (tempMovieList.isEmpty()) {
+                runOnUiThread(() -> Toast.makeText(this, "no data", Toast.LENGTH_LONG).show());
+            }
         }).start();
     }
 }

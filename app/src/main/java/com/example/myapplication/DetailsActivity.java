@@ -27,7 +27,7 @@ public class DetailsActivity extends AppCompatActivity {
         });
         Movie movie = (Movie) getIntent().getSerializableExtra("movie need");
         TextView textView = (TextView) findViewById(R.id.textView);
-        textView.setText((movie.getName()));
+        textView.setText((movie.getTitle()));
         TextView textView1 = (TextView) findViewById(R.id.textView1);
         textView1.setText((movie.getYear()));
         ImageView imageView1 = findViewById(R.id.imageView);

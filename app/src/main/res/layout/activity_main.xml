@@ -6,7 +6,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+<variable
+    name="movie"
+    type="com.example.myapplication.db.Data" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,6 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="184dp"
             android:hint="please Type something here"
+            android:text="@={movie.text}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"

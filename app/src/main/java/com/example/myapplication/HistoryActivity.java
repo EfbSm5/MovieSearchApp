@@ -34,9 +34,9 @@ public class HistoryActivity extends AppCompatActivity {
         Movie[] movieList = (Movie[]) getIntent().getSerializableExtra("movie list");
         ArrayList<String> movieNameList = new ArrayList<>();
         for (Movie movie : movieList) {
-            movieNameList.add(movie.getName());
+            movieNameList.add(movie.getTitle());
         }
-        ListAdapter adapter = new ArrayAdapter<String>(HistoryActivity.this, android.R.layout.simple_list_item_1, movieNameList);
+        ListAdapter adapter = new ArrayAdapter<>(HistoryActivity.this, android.R.layout.simple_list_item_1, movieNameList);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
