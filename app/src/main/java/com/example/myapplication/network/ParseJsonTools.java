@@ -4,15 +4,13 @@ import com.example.myapplication.db.Movie;
 
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.io.Serializable;
 
 public class ParseJsonTools implements Serializable {
 
-    public static ArrayList<Movie> parseJSONWithJSON(String jsonData) throws JSONException {
+    public static ArrayList<Movie> parseJSONWithJSON(String jsonData) {
         ArrayList<Movie> tempmovies = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(jsonData);

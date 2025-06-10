@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="please_type_something_here">please Type something here</string>
+    <string name="search">Search</string>
+    <string name="explain">熬测题把我害惨了</string>
+    <string name="historyrecord">HistoryRecord</string>
 </resources>

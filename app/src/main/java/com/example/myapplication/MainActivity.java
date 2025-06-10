@@ -2,9 +2,7 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -20,16 +18,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
+
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+
         Data movie = new Data();
         binding.setMovie(movie);
-        Button button = binding.button;
-        button.setOnClickListener(v -> {
+        //database for the future
+        binding.button.setOnClickListener(v -> {
             String inputText = movie.text;
             if (inputText.isEmpty()) {
                 Toast.makeText(MainActivity.this, "please input title", Toast.LENGTH_SHORT).show();
             } else {
-                Intent intent = new Intent(MainActivity.this, ShowActivity.class);
+                Intent intent = new Intent(AppUtil.getInstance().getContext(), ShowActivity.class);
                 intent.putExtra("movie name", inputText);
                 startActivity(intent);
             }
