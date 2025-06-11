@@ -14,7 +14,7 @@ import com.example.myapplication.db.Movie;
 import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-    private ArrayList<Movie> movieData = new ArrayList<>();
+    private final ArrayList<Movie> movieData = new ArrayList<>();
     private final OnItemClickListener onItemClickListener;
 
     public RecyclerViewAdapter(OnItemClickListener onItemClickListener) {
@@ -22,7 +22,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public void setMovieData(ArrayList<Movie> movieData) {
-        this.movieData = movieData;
+        this.movieData.addAll(movieData);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

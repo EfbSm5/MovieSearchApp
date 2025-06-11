@@ -1,5 +1,7 @@
 package com.example.myapplication.network;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +10,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MovieNetworkManager {
+    private static final String TAG = "MovieNetworkManager";
+
     public static String sendRequestWithHttpUrl(String receiveData, int currentPage) {
         String responseData = null;
         HttpURLConnection connection = null;
@@ -26,6 +30,7 @@ public class MovieNetworkManager {
                 response.append(line);
             }
             responseData = response.toString();
+            Log.d(TAG, "sendRequestWithHttpUrl: have data" + responseData);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

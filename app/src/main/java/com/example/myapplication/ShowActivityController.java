@@ -1,13 +1,18 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
+
 import com.example.myapplication.db.Movie;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ShowActivityController {
+    private static final String TAG = "ShowActivityController";
     private int currentPage = 1;
     private final Set<Movie> tempMovieHistory = new LinkedHashSet<>();
     private ArrayList<Movie> tempMovieList = new ArrayList<>();
@@ -18,7 +23,7 @@ public class ShowActivityController {
     ShowActivityController(String receiveData, ShowActivityControllerInterface showActivityControllerInterface) {
         this.showActivityControllerInterface = showActivityControllerInterface;
         this.receiveData = receiveData;
-        firstLoadData(receiveData);
+        firstLoadData();
     }
 
     void addHistory(Movie movie) {
@@ -28,10 +33,8 @@ public class ShowActivityController {
     void onScrolled() {
         currentPage++;
         showActivityControllerInterface.setProgressbarVisibility(true);
-        new Thread(() -> {
-            tempMovieList = new ArrayList<>(LoadDataTools.methodLoadListView(receiveData, currentPage));
-            mLiveData.postValue(tempMovieList);
-        }).start();
+        new Thread(this::getMovie).start();
+        Log.d(TAG, "onScrolled: ");
     }
 
     void onClickHistoryBtn() {
@@ -41,14 +44,20 @@ public class ShowActivityController {
         showActivityControllerInterface.startActivity(intent);
     }
 
-    private void firstLoadData(String receiveData) {
+    private void firstLoadData() {
         new Thread(() -> {
-            tempMovieList = new ArrayList<>(LoadDataTools.methodLoadListView(receiveData, currentPage));
-            mLiveData.postValue(tempMovieList);
+            getMovie();
             if (tempMovieList.isEmpty()) {
                 showActivityControllerInterface.noData();
             }
         }).start();
+    }
+
+    void getMovie() {
+        showActivityControllerInterface.setProgressbarVisibility(true);
+        tempMovieList = new ArrayList<>(LoadDataTools.loadListView(receiveData, currentPage));
+        mLiveData.postValue(tempMovieList);
+        showActivityControllerInterface.setProgressbarVisibility(false);
     }
 
     interface ShowActivityControllerInterface {

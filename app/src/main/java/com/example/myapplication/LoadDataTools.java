@@ -11,7 +11,7 @@ import com.example.myapplication.network.MovieNetworkManager;
 import java.util.ArrayList;
 
 public class LoadDataTools {
-    public static ArrayList<Movie> methodLoadListView(String _receiveData, int _currentPage) {
+    public static ArrayList<Movie> loadListView(String _receiveData, int _currentPage) {
         ArrayList<Movie> movies = new ArrayList<>();
 
         try {
