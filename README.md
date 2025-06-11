@@ -1,0 +1,1 @@
+学习安卓写的第一个app,主要使用java进行开发，使用到了多线程和网络请求，viewbinding和databinding
