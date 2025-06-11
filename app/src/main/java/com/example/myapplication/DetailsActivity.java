@@ -26,9 +26,9 @@ public class DetailsActivity extends AppCompatActivity {
             return insets;
         });
         Movie movie = (Movie) getIntent().getSerializableExtra("movie need");
-        TextView textView = (TextView) findViewById(R.id.textView);
+        TextView textView = findViewById(R.id.textView);
         textView.setText((movie.getTitle()));
-        TextView textView1 = (TextView) findViewById(R.id.textView1);
+        TextView textView1 = findViewById(R.id.textView1);
         textView1.setText((movie.getYear()));
         ImageView imageView1 = findViewById(R.id.imageView);
         String imageUrl = movie.getPoster();

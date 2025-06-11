@@ -5,6 +5,7 @@ import com.example.myapplication.db.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.io.Serializable;
 

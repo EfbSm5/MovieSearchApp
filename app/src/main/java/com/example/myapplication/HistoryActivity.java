@@ -30,7 +30,7 @@ public class HistoryActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        ListView listView = (ListView) findViewById(R.id.listView2);
+        ListView listView = findViewById(R.id.listView2);
         Movie[] movieList = (Movie[]) getIntent().getSerializableExtra("movie list");
         ArrayList<String> movieNameList = new ArrayList<>();
         for (Movie movie : movieList) {
